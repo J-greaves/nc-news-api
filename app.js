@@ -2,6 +2,9 @@ const express = require("express");
 const app = express();
 
 const { getTopics } = require("./controllers/topics-controllers");
+const { getDocs } = require("./controllers/api-constrollers");
+
+app.get("/api", getDocs);
 
 app.get("/api/topics", getTopics);
 

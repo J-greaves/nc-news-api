@@ -26,7 +26,6 @@ describe("/api/topics", () => {
       .get("/api/topics")
       .expect(200)
       .then((response) => {
-        console.log(response.body.topics);
         expect(response.body.topics.length).toBe(3);
         response.body.topics.forEach((topic) => {
           expect(topic).toHaveProperty("slug", expect.any(String));
@@ -34,12 +33,17 @@ describe("/api/topics", () => {
         });
       });
   });
-  test("POST: should return 405 for invalid method", () => {
+});
+
+describe("/api", () => {
+  test("GET:200 sends documentation for available endpoints to the client", () => {
     return request(app)
-      .post("/api/topics")
-      .expect(405)
+      .get("/api")
+      .expect(200)
       .then((response) => {
-        expect(response.body.msg).toBe("Method not allowed");
+        expect(response.body.docs).toHaveProperty("GET /api");
+        expect(response.body.docs).toHaveProperty("GET /api/topics");
+        expect(response.body.docs).toHaveProperty("GET /api/articles");
       });
   });
 });
