@@ -3,6 +3,7 @@ const request = require("supertest");
 const db = require("../db/connection.js");
 const seed = require("../db/seeds/seed.js");
 const data = require("../db/data/test-data/index.js");
+const endpoints = require("../endpoints.json");
 
 beforeEach(() => {
   return seed(data);
@@ -41,9 +42,42 @@ describe("/api", () => {
       .get("/api")
       .expect(200)
       .then((response) => {
-        expect(response.body.docs).toHaveProperty("GET /api");
-        expect(response.body.docs).toHaveProperty("GET /api/topics");
-        expect(response.body.docs).toHaveProperty("GET /api/articles");
+        expect(response.body).toHaveProperty("endpoints");
+        expect(response.body.endpoints).toEqual(endpoints);
+      });
+  });
+});
+
+describe("/api/articles/:article_id", () => {
+  test("GET:200 retrieves an article by its ID", () => {
+    return request(app)
+      .get("/api/articles/1")
+      .expect(200)
+      .then((response) => {
+        expect(response.body.article).toHaveProperty("author");
+        expect(response.body.article).toHaveProperty("title");
+        expect(response.body.article).toHaveProperty("article_id");
+        expect(response.body.article).toHaveProperty("body");
+        expect(response.body.article).toHaveProperty("topic");
+        expect(response.body.article).toHaveProperty("created_at");
+        expect(response.body.article).toHaveProperty("votes");
+        expect(response.body.article).toHaveProperty("article_img_url");
+      });
+  });
+  test("GET:404 returns an error if the article ID does not exist", () => {
+    return request(app)
+      .get("/api/articles/9999")
+      .expect(404)
+      .then((response) => {
+        expect(response.body.msg).toBe("Article not found");
+      });
+  });
+  test("GET:400 returns an error if the article ID is invalid", () => {
+    return request(app)
+      .get("/api/articles/bad_request")
+      .expect(400)
+      .then((response) => {
+        expect(response.body.msg).toBe("Bad request");
       });
   });
 });
