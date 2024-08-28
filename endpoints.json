@@ -44,6 +44,24 @@
       ]
     }
   },
+  "PATCH /api/articles/:article_id": {
+    "description": "updates a specific articles votes by its ID (plus 10 here)",
+    "params": ["article_id", "inc_votes"],
+    "exampleResponse": {
+      "article": [
+        {
+          "author": "weegembump",
+          "title": "Seafood substitutions are increasing",
+          "article_id": 1,
+          "body": "Text from the article..",
+          "topic": "cooking",
+          "created_at": "2018-05-30T15:59:13.341Z",
+          "votes": 10,
+          "article_img_url": "https://example.com/image.jpg"
+        }
+      ]
+    }
+  },
   "GET /api/articles/:article_id/comments": {
     "description": "retrieves specific comments by their article_id",
     "params": ["article_id"],
@@ -64,6 +82,20 @@
           "created_at": 1600560600000
         }
       ]
+    }
+  },
+  "POST /api/articles/:article_id/comments": {
+    "description": "Posts a comment by an article_id",
+    "params": ["username", "body"],
+    "exampleResponse": {
+      "comment": {
+        "comment_id": 19,
+        "body": "this is a comment by icellusedkars",
+        "article_id": 4,
+        "author": "icellusedkars",
+        "votes": 0,
+        "created_at": "2024-08-28T13:38:43.814Z"
+      }
     }
   }
 }

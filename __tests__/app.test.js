@@ -174,7 +174,7 @@ describe("/api/articles/:article_id/comments", () => {
         expect(response.body.comment.author).toBe("icellusedkars");
       });
   });
-  test("POST:400 inserts a new treasure to the db and sends the new treasure back to the client", () => {
+  test("POST:400 returns error when missing username in req body", () => {
     const newComment = {
       body: "this is a comment by icellusedkars",
     };
@@ -210,6 +210,56 @@ describe("/api/articles/:article_id/comments", () => {
       .expect(404)
       .then((response) => {
         expect(response.body.msg).toBe("Username does not exist");
+      });
+  });
+});
+describe("/api/articles/:article_id", () => {
+  test("PATCH: 201 updates article by article_id with positive vote increment", () => {
+    return request(app)
+      .patch("/api/articles/1")
+      .send({ inc_votes: 10 })
+      .expect(201)
+      .then((response) => {
+        expect(response.body.article.article_id).toBe(1);
+        expect(response.body.article.votes).toBe(110);
+      });
+  });
+  test("PATCH: 201 updates article by article_id with negative vote increment", () => {
+    return request(app)
+      .patch("/api/articles/1")
+      .send({ inc_votes: -10 })
+      .expect(201)
+      .then((response) => {
+        expect(response.body.article.article_id).toBe(1);
+        expect(response.body.article.votes).toBe(90);
+      });
+  });
+  test("PATCH: 201 updates article by article_id when article doesn't already have any votes", () => {
+    return request(app)
+      .patch("/api/articles/2")
+      .send({ inc_votes: 10 })
+      .expect(201)
+      .then((response) => {
+        expect(response.body.article.article_id).toBe(2);
+        expect(response.body.article.votes).toBe(10);
+      });
+  });
+  test("PATCH: 400 returns error if inc_votes is missing from req.body", () => {
+    return request(app)
+      .patch("/api/articles/1")
+      .send({})
+      .expect(400)
+      .then((response) => {
+        expect(response.body.msg).toBe("Missing votes");
+      });
+  });
+  test("GET: 404 returns error if article id does not exist", () => {
+    return request(app)
+      .patch("/api/articles/999")
+      .send({ inc_votes: 10 })
+      .expect(404)
+      .then((response) => {
+        expect(response.body.msg).toBe("Article ID does not exist");
       });
   });
 });

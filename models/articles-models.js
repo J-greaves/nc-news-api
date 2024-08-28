@@ -95,3 +95,31 @@ exports.insertNewComment = (article_id, newComment) => {
       return result.rows[0];
     });
 };
+
+exports.updateArticleById = (article_id, newVotes) => {
+  if (!newVotes.hasOwnProperty("inc_votes")) {
+    return Promise.reject({ msg: "Missing votes" });
+  }
+  return Promise.all([
+    checkExists(
+      "articles",
+      "article_id",
+      article_id,
+      "Article ID does not exist"
+    ),
+  ])
+    .then(() => {
+      return db.query(
+        `
+        UPDATE articles
+        SET votes = votes + $1
+        WHERE article_id = $2
+        RETURNING *
+        `,
+        [newVotes.inc_votes, article_id]
+      );
+    })
+    .then((result) => {
+      return result.rows[0];
+    });
+};
