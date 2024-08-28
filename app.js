@@ -11,12 +11,15 @@ const {
   patchArticleById,
 } = require("./controllers/articles-controllers");
 const { deleteCommentById } = require("./controllers/comments-controllers");
+const { getUsers } = require("./controllers/users-controllers");
 
 app.use(express.json());
 
 app.get("/api", getDocs);
 
 app.get("/api/topics", getTopics);
+
+app.get("/api/users", getUsers);
 
 app.get("/api/articles", getArticles);
 
