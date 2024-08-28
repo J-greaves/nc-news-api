@@ -81,12 +81,12 @@ describe("/api/articles/:article_id", () => {
       .get("/api/articles/bad_request")
       .expect(400)
       .then((response) => {
-        expect(response.body.msg).toBe("Bad request");
+        expect(response.body.msg).toBe("Article ID is invalid");
       });
   });
 });
 
-describe.only("/api/articles", () => {
+describe("/api/articles", () => {
   test("GET 200 returns all the articles sorted by date in descending order", () => {
     return request(app)
       .get("/api/articles")
@@ -107,6 +107,53 @@ describe.only("/api/articles", () => {
           expect(typeof article.comment_count).toBe("string");
           expect(article.body).toBe(undefined);
         });
+      });
+  });
+});
+
+describe("/api/articles/:article_id/comments", () => {
+  test("GET: 200 returns all comments from the article that matches id query", () => {
+    return request(app)
+      .get("/api/articles/3/comments")
+      .expect(200)
+      .then((response) => {
+        expect(response.body.comments.length > 0).toBe(true);
+        expect(response.body.comments).toBeSortedBy("created_at", {
+          descending: true,
+        });
+        response.body.comments.forEach((comment) => {
+          expect(typeof comment.comment_id).toBe("number");
+          expect(typeof comment.votes).toBe("number");
+          expect(typeof comment.created_at).toBe("string");
+          expect(typeof comment.author).toBe("string");
+          expect(typeof comment.body).toBe("string");
+          expect(typeof comment.article_id).toBe("number");
+        });
+      });
+  });
+  test("GET: 200 returns empty array if article exists but has no comments", () => {
+    return request(app)
+      .get("/api/articles/4/comments")
+      .expect(200)
+      .then((response) => {
+        expect(response.body.comments.length).toBe(0);
+        expect(Array.isArray(response.body.comments)).toBe(true);
+      });
+  });
+  test("GET: 404 returns error if article id does not exist", () => {
+    return request(app)
+      .get("/api/articles/999/comments")
+      .expect(404)
+      .then((response) => {
+        expect(response.body.msg).toBe("Article ID does not exist");
+      });
+  });
+  test("GET: 400 returns error if article id is invalid", () => {
+    return request(app)
+      .get("/api/articles/invalid_id/comments")
+      .expect(400)
+      .then((response) => {
+        expect(response.body.msg).toBe("Article ID is invalid");
       });
   });
 });
