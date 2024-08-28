@@ -1,4 +1,5 @@
 const db = require("../db/connection");
+const checkExists = require("../utils/utils");
 
 exports.fetchArticleById = (article_id) => {
   return db
@@ -34,4 +35,23 @@ exports.fetchArticles = () => {
     .then((result) => {
       return result.rows;
     });
+};
+
+exports.fetchCommentsByArticleId = (article_id) => {
+  const queryPromises = [];
+  queryPromises.push(checkExists("articles", "article_id", article_id));
+  queryPromises.push(
+    db.query(
+      `
+        SELECT *
+        FROM comments
+        WHERE article_id = $1
+        ORDER BY comments.created_at DESC
+        `,
+      [article_id]
+    )
+  );
+  return Promise.all(queryPromises).then((result) => {
+    return result[1].rows;
+  });
 };
