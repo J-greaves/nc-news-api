@@ -10,6 +10,7 @@ const {
   postCommentToArticleById,
   patchArticleById,
 } = require("./controllers/articles-controllers");
+const { deleteCommentById } = require("./controllers/comments-controllers");
 
 app.use(express.json());
 
@@ -27,6 +28,8 @@ app.get("/api/articles/:article_id/comments", getCommentsByArticleId);
 
 app.post("/api/articles/:article_id/comments", postCommentToArticleById);
 
+app.delete("/api/comments/:comment_id", deleteCommentById);
+
 app.use((req, res, next) => {
   res.status(404).send({ msg: "Route not found" });
   next(err);
@@ -34,9 +37,14 @@ app.use((req, res, next) => {
 
 app.use((err, req, res, next) => {
   if (err.code === "22P02") {
-    res.status(400).send({ msg: "Article ID is invalid" });
-  }
-  next(err);
+    if (req.path.includes("/articles/") && req.path.includes("/comments/")) {
+      res.status(400).send({ msg: "Article ID is invalid" });
+    } else if (req.path.includes("/articles/")) {
+      res.status(400).send({ msg: "Article ID is invalid" });
+    } else if (req.path.includes("/comments/")) {
+      res.status(400).send({ msg: "Comment ID is invalid" });
+    }
+  } else next(err);
 });
 
 app.use((err, req, res, next) => {
@@ -57,6 +65,9 @@ app.use((err, req, res, next) => {
   }
   if (err.msg === "Missing votes") {
     res.status(400).send({ msg: "Missing votes" });
+  }
+  if (err.msg === "Comment ID does not exist") {
+    res.status(404).send({ msg: "Comment ID does not exist" });
   }
   next(err);
 });

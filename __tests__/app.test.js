@@ -263,3 +263,29 @@ describe("/api/articles/:article_id", () => {
       });
   });
 });
+describe("/api/comments/:comment_id", () => {
+  test("DELETE: 204 returns 204 code and empty res.body", () => {
+    return request(app)
+      .delete("/api/comments/1")
+      .expect(204)
+      .then((response) => {
+        expect(response.body).toEqual({});
+      });
+  });
+  test("DELETE: 404 return error if comment_id does not exist", () => {
+    return request(app)
+      .delete("/api/comments/9999")
+      .expect(404)
+      .then((response) => {
+        expect(response.body.msg).toBe("Comment ID does not exist");
+      });
+  });
+  test("DELETE: 400 return error if comment_id is invalid", () => {
+    return request(app)
+      .delete("/api/comments/invalid_id")
+      .expect(400)
+      .then((response) => {
+        expect(response.body.msg).toBe("Comment ID is invalid");
+      });
+  });
+});
