@@ -127,7 +127,7 @@ describe("/api/articles/:article_id/comments", () => {
           expect(typeof comment.created_at).toBe("string");
           expect(typeof comment.author).toBe("string");
           expect(typeof comment.body).toBe("string");
-          expect(typeof comment.article_id).toBe("number");
+          expect(comment.article_id).toBe(3);
         });
       });
   });
@@ -154,6 +154,62 @@ describe("/api/articles/:article_id/comments", () => {
       .expect(400)
       .then((response) => {
         expect(response.body.msg).toBe("Article ID is invalid");
+      });
+  });
+});
+describe("/api/articles/:article_id/comments", () => {
+  test("POST: 201 adds a new comment to article with specified ID and responds with that comment", () => {
+    const newComment = {
+      username: "icellusedkars",
+      body: "this is a comment by icellusedkars",
+    };
+    return request(app)
+      .post("/api/articles/4/comments")
+      .send(newComment)
+      .expect(201)
+      .then((response) => {
+        expect(response.body.comment.body).toBe(
+          "this is a comment by icellusedkars"
+        );
+        expect(response.body.comment.author).toBe("icellusedkars");
+      });
+  });
+  test("POST:400 inserts a new treasure to the db and sends the new treasure back to the client", () => {
+    const newComment = {
+      body: "this is a comment by icellusedkars",
+    };
+    return request(app)
+      .post("/api/articles/4/comments")
+      .send(newComment)
+      .expect(400)
+      .then((response) => {
+        expect(response.body.msg).toBe("Missing username or body");
+      });
+  });
+  test("GET: 404 returns error if article id does not exist", () => {
+    const newComment = {
+      username: "icellusedkars",
+      body: "this is a comment by icellusedkars",
+    };
+    return request(app)
+      .post("/api/articles/999/comments")
+      .send(newComment)
+      .expect(404)
+      .then((response) => {
+        expect(response.body.msg).toBe("Article ID does not exist");
+      });
+  });
+  test("GET: 404 returns error if username does not exist", () => {
+    const newComment = {
+      username: "icellusedkarszzzzzzzzz",
+      body: "this is a comment by icellusedkars",
+    };
+    return request(app)
+      .post("/api/articles/4/comments")
+      .send(newComment)
+      .expect(404)
+      .then((response) => {
+        expect(response.body.msg).toBe("Username does not exist");
       });
   });
 });
