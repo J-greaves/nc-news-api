@@ -38,8 +38,15 @@ exports.fetchArticles = () => {
 };
 
 exports.fetchCommentsByArticleId = (article_id) => {
-  const queryPromises = [];
-  queryPromises.push(checkExists("articles", "article_id", article_id));
+  queryPromises = [];
+  queryPromises.push(
+    checkExists(
+      "articles",
+      "article_id",
+      article_id,
+      "Article ID does not exist"
+    )
+  );
   queryPromises.push(
     db.query(
       `
@@ -54,4 +61,37 @@ exports.fetchCommentsByArticleId = (article_id) => {
   return Promise.all(queryPromises).then((result) => {
     return result[1].rows;
   });
+};
+
+exports.insertNewComment = (article_id, newComment) => {
+  const validColumns = ["username", "body"];
+
+  for (const key of validColumns) {
+    if (!newComment.hasOwnProperty(key)) {
+      return Promise.reject({ msg: "Missing required username or body" });
+    }
+  }
+  return Promise.all([
+    checkExists(
+      "users",
+      "username",
+      newComment.username,
+      "Username does not exist"
+    ),
+    checkExists(
+      "articles",
+      "article_id",
+      article_id,
+      "Article ID does not exist"
+    ),
+  ])
+    .then(() => {
+      return db.query(
+        "INSERT INTO comments(body, author, article_id) VALUES ($1, $2, $3) RETURNING *",
+        [newComment.body, newComment.username, article_id]
+      );
+    })
+    .then((result) => {
+      return result.rows[0];
+    });
 };
