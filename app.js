@@ -72,6 +72,12 @@ app.use((err, req, res, next) => {
   if (err.msg === "Comment ID does not exist") {
     res.status(404).send({ msg: "Comment ID does not exist" });
   }
+  if (err.msg === "Invalid sort_by column") {
+    res.status(400).send({ msg: "Invalid sort_by column" });
+  }
+  if (err.msg === "Invalid order") {
+    res.status(400).send({ msg: "Invalid order" });
+  }
   next(err);
 });
 

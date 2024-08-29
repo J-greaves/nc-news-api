@@ -11,10 +11,10 @@ beforeEach(() => {
 });
 afterAll(() => db.end());
 
-describe("/api/whaaaaaaaa???", () => {
+describe("/api/bad_endpoint", () => {
   test("GET:404 receive 404 and relevant message if trying to access non existant endpoint", () => {
     return request(app)
-      .get("/api/whaaaaaaaa???")
+      .get("/api/bad_endpoint")
       .expect(404)
       .then((response) => {
         expect(response.body.msg).toBe("Route not found");
@@ -107,6 +107,34 @@ describe("/api/articles", () => {
           expect(typeof article.comment_count).toBe("string");
           expect(article.body).toBe(undefined);
         });
+      });
+  });
+  test("GET 200 returns all the articles sorted by title in ascending order", () => {
+    return request(app)
+      .get("/api/articles?sort_by=title&order=asc")
+      .expect(200)
+      .then((response) => {
+        expect(response.body.articles.length > 0).toBe(true);
+        expect(response.body.articles).toBeSortedBy("title", {
+          ascending: true,
+        });
+      });
+  });
+  test("GET: 400 responds with an error message for an invalid sort_by column", () => {
+    return request(app)
+      .get("/api/articles?sort_by=invalid_column&order=asc")
+      .expect(400)
+      .then((response) => {
+        expect(response.body.msg).toBe("Invalid sort_by column");
+      });
+  });
+
+  test("GET: 400 responds with an error message for an invalid order", () => {
+    return request(app)
+      .get("/api/articles?sort_by=votes&order=invalid_order")
+      .expect(400)
+      .then((response) => {
+        expect(response.body.msg).toBe("Invalid order");
       });
   });
 });
