@@ -14,7 +14,26 @@ exports.fetchArticleById = (article_id) => {
     });
 };
 
-exports.fetchArticles = () => {
+exports.fetchArticles = (sort_by, order) => {
+  const validColumns = [
+    "article_id",
+    "title",
+    "author",
+    "topic",
+    "created_at",
+    "votes",
+    "comment_count",
+  ];
+  const validOrders = ["asc", "desc"];
+
+  if (!validColumns.includes(sort_by)) {
+    return Promise.reject({ status: 400, msg: "Invalid sort_by column" });
+  }
+
+  if (!validOrders.includes(order)) {
+    return Promise.reject({ status: 400, msg: "Invalid order" });
+  }
+
   return db
     .query(
       `
@@ -29,7 +48,7 @@ exports.fetchArticles = () => {
         FROM articles
         LEFT JOIN comments ON articles.article_id = comments.article_id
         GROUP BY articles.article_id
-        ORDER BY articles.created_at DESC
+        ORDER BY ${sort_by} ${order}
     `
     )
     .then((result) => {
