@@ -73,7 +73,7 @@ describe("/api/articles/:article_id", () => {
       .get("/api/articles/9999")
       .expect(404)
       .then((response) => {
-        expect(response.body.msg).toBe("Article not found");
+        expect(response.body.msg).toBe("article_id not found");
       });
   });
   test("GET:400 returns an error if the article ID is invalid", () => {
@@ -135,6 +135,36 @@ describe("/api/articles", () => {
       .expect(400)
       .then((response) => {
         expect(response.body.msg).toBe("Invalid order");
+      });
+  });
+
+  test("GET: 200 - filters articles by topic", () => {
+    return request(app)
+      .get("/api/articles?topic=mitch")
+      .expect(200)
+      .then((response) => {
+        expect(response.body.articles).toHaveLength(12);
+        response.body.articles.forEach((article) => {
+          expect(article.topic).toBe("mitch");
+        });
+      });
+  });
+  test("GET: 404 - responds with error if topic does not exist", () => {
+    return request(app)
+      .get("/api/articles?topic=bad_topic")
+      .expect(404)
+      .then((response) => {
+        expect(response.body.msg).toBe(
+          "Topic not found or no articles for this topic"
+        );
+      });
+  });
+  test("GET: 200 - returns all articles if no topic is provided", () => {
+    return request(app)
+      .get("/api/articles")
+      .expect(200)
+      .then((response) => {
+        expect(response.body.articles.length).toBe(13);
       });
   });
 });
@@ -211,7 +241,7 @@ describe("/api/articles/:article_id/comments", () => {
       .send(newComment)
       .expect(400)
       .then((response) => {
-        expect(response.body.msg).toBe("Missing username or body");
+        expect(response.body.msg).toBe("Missing required username or body");
       });
   });
   test("GET: 404 returns error if article id does not exist", () => {
