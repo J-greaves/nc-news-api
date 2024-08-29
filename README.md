@@ -1,6 +1,20 @@
 # Northcoders News API
 
-# Setup instructions!
+This project is RESTful API designed for a news application that supports CRUD operations. It is a backend service that allows users to interact with various elements of a news platform such as articles, topics, comments and other user profiles.
+Built with Node.js, Express and PostgreSQL.
+
+### Key Features:
+
+- CRUD Operations: Create, Read, Update and Delete operations for articles, comments and users.
+- Sorting and Filtering: Enables users to sort and filter articles by criteria such as date, author, topic etc. helping users find relevant content
+- Comment Count Aggregation: Provides aggregate data on the number of comments associated with each article, giving users insights into engagement and interaction.
+- Error Handling: Comprehensive error handling for invalid requests and nonexistent resources.
+
+## Hosted Version
+
+You can access the hosted version of this API [here](https://nc-news-api-jg.onrender.com/api).
+
+## Setup instructions!
 
 1.  Clone the Repository
 
@@ -52,3 +66,8 @@
     Now that the database has been created, it can be seeded with data. Run the following command:
 
         - npm run seed
+
+## Minimum Requirements
+
+- Node.js: v14.x or later
+- PostgreSQL: v12.x or later
