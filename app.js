@@ -51,34 +51,9 @@ app.use((err, req, res, next) => {
 });
 
 app.use((err, req, res, next) => {
-  if (err.msg === "Invalid article id") {
-    res.status(400).send({ msg: "Bad request" });
+  if (err.msg) {
+    res.status(err.status).send({ msg: err.msg });
   }
-  if (err.msg === "article_id not found") {
-    res.status(404).send({ msg: "Article not found" });
-  }
-  if (err.msg === "Article ID does not exist") {
-    res.status(404).send({ msg: "Article ID does not exist" });
-  }
-  if (err.msg === "Username does not exist") {
-    res.status(404).send({ msg: "Username does not exist" });
-  }
-  if (err.msg === "Missing required username or body") {
-    res.status(400).send({ msg: "Missing username or body" });
-  }
-  if (err.msg === "Missing votes") {
-    res.status(400).send({ msg: "Missing votes" });
-  }
-  if (err.msg === "Comment ID does not exist") {
-    res.status(404).send({ msg: "Comment ID does not exist" });
-  }
-  if (err.msg === "Invalid sort_by column") {
-    res.status(400).send({ msg: "Invalid sort_by column" });
-  }
-  if (err.msg === "Invalid order") {
-    res.status(400).send({ msg: "Invalid order" });
-  }
-  next(err);
 });
 
 module.exports = app;

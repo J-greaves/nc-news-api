@@ -6,15 +6,13 @@ exports.fetchArticleById = (article_id) => {
     .query("SELECT * FROM articles WHERE article_id = $1", [article_id])
     .then((result) => {
       if (result.rows.length === 0) {
-        return Promise.reject({
-          msg: "article_id not found",
-        });
+        return Promise.reject({ status: 404, msg: "article_id not found" });
       }
       return result.rows[0];
     });
 };
 
-exports.fetchArticles = (sort_by, order) => {
+exports.fetchArticles = (sort_by, order, topic) => {
   const validColumns = [
     "article_id",
     "title",
@@ -34,9 +32,7 @@ exports.fetchArticles = (sort_by, order) => {
     return Promise.reject({ status: 400, msg: "Invalid order" });
   }
 
-  return db
-    .query(
-      `
+  let queryStr = `
         SELECT articles.article_id,
         articles.title,
         articles.author,
@@ -47,13 +43,40 @@ exports.fetchArticles = (sort_by, order) => {
         COUNT(comments.comment_id) AS comment_count
         FROM articles
         LEFT JOIN comments ON articles.article_id = comments.article_id
-        GROUP BY articles.article_id
-        ORDER BY ${sort_by} ${order}
-    `
+        `;
+  const topicQuery = [];
+  if (topic) {
+    return checkExists(
+      "articles",
+      "topic",
+      topic,
+      "Topic not found or no articles for this topic"
     )
-    .then((result) => {
-      return result.rows;
-    });
+      .then(() => {
+        console.log("helloooooo");
+        queryStr += ` 
+        WHERE articles.topic = $1 `;
+        topicQuery.push(topic);
+
+        queryStr += `
+        GROUP BY articles.article_id 
+        ORDER BY ${sort_by} ${order}`;
+
+        console.log(queryStr);
+
+        return db.query(queryStr, topicQuery);
+      })
+      .then((result) => {
+        return result.rows;
+      });
+  }
+
+  queryStr += ` GROUP BY articles.article_id
+        ORDER BY ${sort_by} ${order}`;
+
+  return db.query(queryStr, topicQuery).then((result) => {
+    return result.rows;
+  });
 };
 
 exports.fetchCommentsByArticleId = (article_id) => {
@@ -87,7 +110,10 @@ exports.insertNewComment = (article_id, newComment) => {
 
   for (const key of validColumns) {
     if (!newComment.hasOwnProperty(key)) {
-      return Promise.reject({ msg: "Missing required username or body" });
+      return Promise.reject({
+        status: 400,
+        msg: "Missing required username or body",
+      });
     }
   }
   return Promise.all([
@@ -117,7 +143,7 @@ exports.insertNewComment = (article_id, newComment) => {
 
 exports.updateArticleById = (article_id, newVotes) => {
   if (!newVotes.hasOwnProperty("inc_votes")) {
-    return Promise.reject({ msg: "Missing votes" });
+    return Promise.reject({ status: 400, msg: "Missing votes" });
   }
   return Promise.all([
     checkExists(
