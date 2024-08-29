@@ -9,7 +9,6 @@ const checkExists = (table_name, column_name, value, notFoundMsg) => {
   );
   return db.query(queryStr, [value]).then(({ rows }) => {
     if (rows.length === 0) {
-      console.log("here?");
       return Promise.reject({ status: 404, msg: notFoundMsg });
     }
   });

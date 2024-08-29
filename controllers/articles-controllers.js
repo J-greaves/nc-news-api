@@ -22,7 +22,6 @@ exports.getArticles = (req, res, next) => {
   const { sort_by = "created_at", order = "desc", topic } = req.query;
   fetchArticles(sort_by, order, topic)
     .then((articles) => {
-      console.log({ articles });
       res.status(200).send({ articles });
     })
     .catch((err) => {
