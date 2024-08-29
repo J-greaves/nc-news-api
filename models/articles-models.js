@@ -3,7 +3,16 @@ const checkExists = require("../utils/utils");
 
 exports.fetchArticleById = (article_id) => {
   return db
-    .query("SELECT * FROM articles WHERE article_id = $1", [article_id])
+    .query(
+      `
+      SELECT articles.*, COUNT(comments.comment_id) AS comment_count 
+      FROM articles 
+      LEFT JOIN comments ON articles.article_id = comments.article_id
+      WHERE articles.article_id = $1
+      GROUP BY articles.article_id;
+      `,
+      [article_id]
+    )
     .then((result) => {
       if (result.rows.length === 0) {
         return Promise.reject({ status: 404, msg: "article_id not found" });
@@ -53,7 +62,6 @@ exports.fetchArticles = (sort_by, order, topic) => {
       "Topic not found or no articles for this topic"
     )
       .then(() => {
-        console.log("helloooooo");
         queryStr += ` 
         WHERE articles.topic = $1 `;
         topicQuery.push(topic);
@@ -61,8 +69,6 @@ exports.fetchArticles = (sort_by, order, topic) => {
         queryStr += `
         GROUP BY articles.article_id 
         ORDER BY ${sort_by} ${order}`;
-
-        console.log(queryStr);
 
         return db.query(queryStr, topicQuery);
       })
