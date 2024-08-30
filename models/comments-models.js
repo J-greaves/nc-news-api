@@ -13,7 +13,6 @@ exports.removeCommentById = (comment_id) => {
 };
 
 exports.updateCommentVotesById = (comment_id, voteInc) => {
-  console.log(voteInc);
   if (!voteInc.hasOwnProperty("inc_votes")) {
     return Promise.reject({ status: 400, msg: "Missing votes" });
   }

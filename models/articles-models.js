@@ -111,6 +111,60 @@ exports.fetchCommentsByArticleId = (article_id) => {
   });
 };
 
+exports.insertNewArticle = (newArticle) => {
+  let article_img_url =
+    "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700";
+
+  if (newArticle.article_img_url) {
+    article_img_url = newArticle.article_img_url;
+  }
+
+  const validColumns = ["author", "body", "topic", "title"];
+
+  for (const key of validColumns) {
+    if (!newArticle.hasOwnProperty(key)) {
+      return Promise.reject({
+        status: 400,
+        msg: "Missing required actricle property",
+      });
+    }
+  }
+
+  for (let key in newArticle) {
+    if (typeof newArticle[key] !== "string") {
+      return Promise.reject({
+        status: 400,
+        msg: "Invalid values in article properties",
+      });
+    }
+  }
+
+  return Promise.all([
+    checkExists(
+      "users",
+      "username",
+      newArticle.author,
+      "Username does not exist"
+    ),
+    checkExists("topics", "slug", newArticle.topic, "Topic does not exist"),
+  ])
+    .then(() => {
+      return db.query(
+        "INSERT INTO articles (author, title, body, topic, article_img_url) VALUES ($1, $2, $3, $4, $5) RETURNING *",
+        [
+          newArticle.author,
+          newArticle.title,
+          newArticle.body,
+          newArticle.topic,
+          article_img_url,
+        ]
+      );
+    })
+    .then((result) => {
+      return result.rows[0];
+    });
+};
+
 exports.insertNewComment = (article_id, newComment) => {
   const validColumns = ["username", "body"];
 

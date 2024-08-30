@@ -165,5 +165,46 @@
         "avatar_url": "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg"
       }
     }
+  },
+  "POST /api/articles": {
+    "description": "Creates a new article and adds it to the database.",
+    "requestBody": {
+      "author": "The username of the person who is authoring the article. Must be a valid username in the users table.",
+      "title": "The title of the article.",
+      "body": "The content of the article.",
+      "topic": "The topic under which the article falls. Must be a valid topic in the topics table",
+      "article_img_url": "The URL of the image for the article. If not provided, a default image URL will be used."
+    },
+    "exampleResponses": {
+      "201": {
+        "description": "Successfully creates a new article and responds with the newly created article.",
+        "exampleResponse": {
+          "article": {
+            "author": "icellusedkars",
+            "title": "New article by icellusedkars",
+            "body": "this is a new article by icellusedkars",
+            "topic": "paper",
+            "article_img_url": "https://www.worksheetsplanet.com/wp-content/uploads/2023/03/What-is-an-article.jpg",
+            "article_id": 1,
+            "created_at": "2024-08-30T00:00:00.000Z"
+          }
+        }
+      },
+      "400": {
+        "description": "Client error when the request body is missing required fields or contains invalid values.",
+        "exampleResponse1": {
+          "msg": "Missing required article property"
+        },
+        "exampleResponse2": {
+          "msg": "Invalid values in article properties"
+        }
+      }
+    },
+    "404": {
+      "description": "Error when the author provided in the request is not found in the user table.",
+      "exampleResponse": {
+        "msg": "Username does not exist"
+      }
+    }
   }
 }

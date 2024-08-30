@@ -445,3 +445,130 @@ describe("/api/comments/:comment_id", () => {
       });
   });
 });
+
+describe("/api/articles", () => {
+  test("POST: 201 adds a new article to the database and responds with that article", () => {
+    const newArticle = {
+      author: "icellusedkars",
+      title: "New article by icellusedkars",
+      body: "this is a new article by icellusedkars",
+      topic: "paper",
+      article_img_url:
+        "https://www.worksheetsplanet.com/wp-content/uploads/2023/03/What-is-an-article.jpg",
+    };
+    return request(app)
+      .post("/api/articles")
+      .send(newArticle)
+      .expect(201)
+      .then((response) => {
+        expect(response.body.article.author).toBe("icellusedkars");
+        expect(response.body.article.title).toBe(
+          "New article by icellusedkars"
+        );
+        expect(response.body.article.body).toBe(
+          "this is a new article by icellusedkars"
+        );
+        expect(response.body.article.topic).toBe("paper");
+        expect(response.body.article.article_img_url).toBe(
+          "https://www.worksheetsplanet.com/wp-content/uploads/2023/03/What-is-an-article.jpg"
+        );
+        expect(typeof response.body.article.article_id).toBe("number");
+        expect(typeof response.body.article.created_at).toBe("string");
+      });
+  });
+  test("POST: 201 adds a new article to the database and responds with that article and sets article_img_url to default if not provided in request body", () => {
+    const newArticle = {
+      author: "icellusedkars",
+      title: "New article by icellusedkars",
+      body: "this is a new article by icellusedkars",
+      topic: "paper",
+    };
+    return request(app)
+      .post("/api/articles")
+      .send(newArticle)
+      .expect(201)
+      .then((response) => {
+        expect(response.body.article.author).toBe("icellusedkars");
+        expect(response.body.article.title).toBe(
+          "New article by icellusedkars"
+        );
+        expect(response.body.article.body).toBe(
+          "this is a new article by icellusedkars"
+        );
+        expect(response.body.article.topic).toBe("paper");
+        expect(response.body.article.article_img_url).toBe(
+          "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+        );
+        expect(typeof response.body.article.article_id).toBe("number");
+        expect(typeof response.body.article.created_at).toBe("string");
+      });
+  });
+  test("POST:400 returns error when missing required keys in request body", () => {
+    const newArticle = {
+      author: "icellusedkars",
+      body: "this is a new article by icellusedkars",
+      topic: "paper",
+      article_img_url:
+        "https://www.worksheetsplanet.com/wp-content/uploads/2023/03/What-is-an-article.jpg",
+    };
+    return request(app)
+      .post("/api/articles")
+      .send(newArticle)
+      .expect(400)
+      .then((response) => {
+        expect(response.body.msg).toBe("Missing required actricle property");
+      });
+  });
+  test("POST:400 returns error when author is not in found in user table", () => {
+    const newArticle = {
+      author: "unknown_user",
+      title: "New article by unknown_user",
+      body: "this is a new article by unknown_user",
+      topic: "paper",
+      article_img_url:
+        "https://www.worksheetsplanet.com/wp-content/uploads/2023/03/What-is-an-article.jpg",
+    };
+    return request(app)
+      .post("/api/articles")
+      .send(newArticle)
+      .expect(404)
+      .then((response) => {
+        expect(response.body.msg).toBe("Username does not exist");
+      });
+  });
+  test("POST:400 returns error when topic is not in found in topic table", () => {
+    const newArticle = {
+      author: "icellusedkars",
+      title: "New article by icellusedkars",
+      body: "this is a new article by icellusedkars",
+      topic: "unknown_topic",
+      article_img_url:
+        "https://www.worksheetsplanet.com/wp-content/uploads/2023/03/What-is-an-article.jpg",
+    };
+    return request(app)
+      .post("/api/articles")
+      .send(newArticle)
+      .expect(404)
+      .then((response) => {
+        expect(response.body.msg).toBe("Topic does not exist");
+      });
+  });
+  test("POST:400 returns error when body keys have invalid values", () => {
+    const newArticle = {
+      author: "icellusedkars",
+      title: 9999,
+      body: "this is a new article by icellusedkars",
+      topic: "paper",
+      article_img_url:
+        "https://www.worksheetsplanet.com/wp-content/uploads/2023/03/What-is-an-article.jpg",
+    };
+    return request(app)
+      .post("/api/articles")
+      .send(newArticle)
+      .expect(400)
+      .then((response) => {
+        console.log(response.body);
+        expect(response.body.msg).toBe("Invalid values in article properties");
+      });
+  });
+});
