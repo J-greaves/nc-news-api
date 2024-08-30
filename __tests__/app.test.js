@@ -472,6 +472,7 @@ describe("/api/articles", () => {
         expect(response.body.article.article_img_url).toBe(
           "https://www.worksheetsplanet.com/wp-content/uploads/2023/03/What-is-an-article.jpg"
         );
+        expect(response.body.article.comment_count).toBe(0);
         expect(typeof response.body.article.article_id).toBe("number");
         expect(typeof response.body.article.created_at).toBe("string");
       });
@@ -488,6 +489,7 @@ describe("/api/articles", () => {
       .send(newArticle)
       .expect(201)
       .then((response) => {
+        console.log(response.body.article);
         expect(response.body.article.author).toBe("icellusedkars");
         expect(response.body.article.title).toBe(
           "New article by icellusedkars"
@@ -499,6 +501,7 @@ describe("/api/articles", () => {
         expect(response.body.article.article_img_url).toBe(
           "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
         );
+        expect(response.body.article.comment_count).toBe(0);
         expect(typeof response.body.article.article_id).toBe("number");
         expect(typeof response.body.article.created_at).toBe("string");
       });

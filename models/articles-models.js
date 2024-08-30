@@ -161,7 +161,25 @@ exports.insertNewArticle = (newArticle) => {
       );
     })
     .then((result) => {
-      return result.rows[0];
+      const newArticle = result.rows[0];
+      const article_id = newArticle.article_id;
+
+      return db
+        .query(
+          `
+        SELECT COUNT(*) AS comment_count
+        FROM comments
+        WHERE article_id = $1 
+        `,
+          [article_id]
+        )
+        .then((countResult) => {
+          const commentCount = Number(countResult.rows[0].comment_count);
+          return {
+            ...newArticle,
+            comment_count: commentCount,
+          };
+        });
     });
 };
 
