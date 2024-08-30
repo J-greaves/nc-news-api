@@ -245,7 +245,7 @@ describe("/api/articles/:article_id/comments", () => {
         expect(response.body.msg).toBe("Missing required username or body");
       });
   });
-  test("GET: 404 returns error if article id does not exist", () => {
+  test("POST: 404 returns error if article id does not exist", () => {
     const newComment = {
       username: "icellusedkars",
       body: "this is a comment by icellusedkars",
@@ -258,7 +258,7 @@ describe("/api/articles/:article_id/comments", () => {
         expect(response.body.msg).toBe("Article ID does not exist");
       });
   });
-  test("GET: 404 returns error if username does not exist", () => {
+  test("POST: 404 returns error if username does not exist", () => {
     const newComment = {
       username: "icellusedkarszzzzzzzzz",
       body: "this is a comment by icellusedkars",
@@ -273,7 +273,7 @@ describe("/api/articles/:article_id/comments", () => {
   });
 });
 describe("/api/articles/:article_id", () => {
-  test("PATCH: 201 updates article by article_id with positive vote increment", () => {
+  test("PATCH: 200 updates article by article_id with positive vote increment", () => {
     return request(app)
       .patch("/api/articles/1")
       .send({ inc_votes: 10 })
@@ -283,7 +283,7 @@ describe("/api/articles/:article_id", () => {
         expect(response.body.article.votes).toBe(110);
       });
   });
-  test("PATCH: 201 updates article by article_id with negative vote increment", () => {
+  test("PATCH: 200 updates article by article_id with negative vote increment", () => {
     return request(app)
       .patch("/api/articles/1")
       .send({ inc_votes: -10 })
@@ -293,7 +293,7 @@ describe("/api/articles/:article_id", () => {
         expect(response.body.article.votes).toBe(90);
       });
   });
-  test("PATCH: 201 updates article by article_id when article doesn't already have any votes", () => {
+  test("PATCH: 200 updates article by article_id when article doesn't already have any votes", () => {
     return request(app)
       .patch("/api/articles/2")
       .send({ inc_votes: 10 })
@@ -312,7 +312,7 @@ describe("/api/articles/:article_id", () => {
         expect(response.body.msg).toBe("Missing votes");
       });
   });
-  test("GET: 404 returns error if article id does not exist", () => {
+  test("PATCH: 404 returns error if article id does not exist", () => {
     return request(app)
       .patch("/api/articles/999")
       .send({ inc_votes: 10 })
@@ -383,6 +383,65 @@ describe("/api/users/:username", () => {
       .expect(404)
       .then((response) => {
         expect(response.body.msg).toBe("Username does not exist");
+      });
+  });
+});
+describe("/api/comments/:comment_id", () => {
+  test("PATCH: 200 updates comment votes by comment_id with positive vote increment", () => {
+    return request(app)
+      .patch("/api/comments/1")
+      .send({ inc_votes: 1 })
+      .expect(200)
+      .then((response) => {
+        expect(response.body.comment.comment_id).toBe(1);
+        expect(response.body.comment.votes).toBe(17);
+      });
+  });
+  test("PATCH: 200 updates comment votes by comment_id with negative vote increment", () => {
+    return request(app)
+      .patch("/api/comments/5")
+      .send({ inc_votes: -1 })
+      .expect(200)
+      .then((response) => {
+        expect(response.body.comment.comment_id).toBe(5);
+        expect(response.body.comment.votes).toBe(-1);
+      });
+  });
+  test("PATCH: 200 updates comment votes by comment_id when comment doesn't already have any votes", () => {
+    return request(app)
+      .patch("/api/comments/5")
+      .send({ inc_votes: 1 })
+      .expect(200)
+      .then((response) => {
+        expect(response.body.comment.comment_id).toBe(5);
+        expect(response.body.comment.votes).toBe(1);
+      });
+  });
+  test("PATCH: 400 returns error if inc_votes is missing from req.body", () => {
+    return request(app)
+      .patch("/api/comments/1")
+      .send({})
+      .expect(400)
+      .then((response) => {
+        expect(response.body.msg).toBe("Missing votes");
+      });
+  });
+  test("PATCH: 404 returns error if comment id does not exist", () => {
+    return request(app)
+      .patch("/api/comments/999")
+      .send({ inc_votes: 1 })
+      .expect(404)
+      .then((response) => {
+        expect(response.body.msg).toBe("Comment ID does not exist");
+      });
+  });
+  test("PATCH: 400 returns error if comment id is invalid format", () => {
+    return request(app)
+      .patch("/api/comments/invalid_format")
+      .send({ inc_votes: 1 })
+      .expect(400)
+      .then((response) => {
+        expect(response.body.msg).toBe("Comment ID is invalid");
       });
   });
 });

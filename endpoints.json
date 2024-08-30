@@ -1,16 +1,16 @@
 {
   "GET /api": {
-    "description": "serves up a json representation of all the available endpoints of the api"
+    "description": "Serves up a JSON representation of all the available endpoints of the API."
   },
   "GET /api/topics": {
-    "description": "serves an array of all topics",
+    "description": "Serves an array of all topics.",
     "queries": [],
     "exampleResponse": {
       "topics": [{ "slug": "football", "description": "Footie!" }]
     }
   },
   "GET /api/articles": {
-    "description": "serves an array of all articles",
+    "description": "Serves an array of all articles.",
     "queries": ["author", "topic", "sort_by", "order"],
     "exampleResponse": {
       "articles": [
@@ -18,7 +18,7 @@
           "title": "Seafood substitutions are increasing",
           "topic": "cooking",
           "author": "weegembump",
-          "body": "Text from the article..",
+          "body": "Text from the article...",
           "created_at": "2018-05-30T15:59:13.341Z",
           "votes": 0,
           "comment_count": 6
@@ -27,66 +27,75 @@
     }
   },
   "GET /api/articles/:article_id": {
-    "description": "retrieves a specific article by its ID",
+    "description": "Retrieves a specific article by its ID.",
     "params": ["article_id"],
     "exampleResponse": {
-      "article": [
-        {
-          "author": "weegembump",
-          "title": "Seafood substitutions are increasing",
-          "article_id": 1,
-          "body": "Text from the article..",
-          "topic": "cooking",
-          "created_at": "2018-05-30T15:59:13.341Z",
-          "votes": 0,
-          "article_img_url": "https://example.com/image.jpg"
-        }
-      ]
+      "article": {
+        "author": "weegembump",
+        "title": "Seafood substitutions are increasing",
+        "article_id": 1,
+        "body": "Text from the article...",
+        "topic": "cooking",
+        "created_at": "2018-05-30T15:59:13.341Z",
+        "votes": 0,
+        "article_img_url": "https://example.com/image.jpg"
+      }
     }
   },
   "PATCH /api/articles/:article_id": {
-    "description": "updates a specific articles votes by its ID (plus 10 here)",
-    "params": ["article_id", "inc_votes"],
+    "description": "Updates the vote count for a specific article by its ID.",
+    "params": ["article_id"],
+    "requestBody": {
+      "inc_votes": "An integer representing the number of votes to increment or decrement the article's vote count by."
+    },
     "exampleResponse": {
-      "article": [
-        {
-          "author": "weegembump",
-          "title": "Seafood substitutions are increasing",
-          "article_id": 1,
-          "body": "Text from the article..",
-          "topic": "cooking",
-          "created_at": "2018-05-30T15:59:13.341Z",
-          "votes": 10,
-          "article_img_url": "https://example.com/image.jpg"
-        }
-      ]
+      "article": {
+        "author": "weegembump",
+        "title": "Seafood substitutions are increasing",
+        "article_id": 1,
+        "body": "Text from the article...",
+        "topic": "cooking",
+        "created_at": "2018-05-30T15:59:13.341Z",
+        "votes": 10,
+        "article_img_url": "https://example.com/image.jpg"
+      }
     }
   },
   "GET /api/articles/:article_id/comments": {
-    "description": "retrieves specific comments by their article_id",
+    "description": "Retrieves all comments for a specific article by its article ID.",
     "params": ["article_id"],
     "exampleResponse": {
-      "comment": [
+      "comments": [
         {
           "body": "git push origin master",
           "votes": 0,
           "author": "icellusedkars",
           "article_id": 3,
-          "created_at": 1592641440000
+          "created_at": "2024-08-28T13:38:43.814Z"
         },
         {
           "body": "Ambidextrous marsupial",
           "votes": 0,
           "author": "icellusedkars",
           "article_id": 3,
-          "created_at": 1600560600000
+          "created_at": "2024-08-28T13:38:43.814Z"
         }
       ]
     }
   },
   "POST /api/articles/:article_id/comments": {
-    "description": "Posts a comment by an article_id",
-    "params": ["username", "body"],
+    "description": "Posts a comment to an article identified by the article_id.",
+    "params": {
+      "article_id": "The ID of the article to which the comment will be added. This is a route parameter."
+    },
+    "requestBody": {
+      "username": "The username of the person posting the comment.",
+      "body": "The content of the comment."
+    },
+    "exampleRequest": {
+      "username": "icellusedkars",
+      "body": "this is a comment by icellusedkars"
+    },
     "exampleResponse": {
       "comment": {
         "comment_id": 19,
@@ -99,12 +108,12 @@
     }
   },
   "DELETE /api/comments/:comment_id": {
-    "description": "Deletes a comment by an comment_id",
-    "query": ["comment_id"],
+    "description": "Deletes a comment by its comment_id.",
+    "params": ["comment_id"],
     "exampleResponse": {}
   },
   "GET /api/users": {
-    "description": "serves an array of all users",
+    "description": "Serves an array of all users.",
     "queries": [],
     "exampleResponse": {
       "users": [
@@ -131,17 +140,30 @@
       ]
     }
   },
-  "GET /api/users/: username": {
-    "description": "retrieves a specific user by username",
-    "queries": ["butter_bridge"],
+  "GET /api/users/:username": {
+    "description": "Retrieves a specific user by username.",
+    "params": ["username"],
     "exampleResponse": {
-      "users": [
-        {
-          "username": "butter_bridge",
-          "name": "jonny",
-          "avatar_url": "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg"
-        }
-      ]
+      "user": {
+        "username": "butter_bridge",
+        "name": "jonny",
+        "avatar_url": "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg"
+      }
+    }
+  },
+  "PATCH /api/users/:username": {
+    "description": "Updates a user's information by their username.",
+    "params": ["username"],
+    "requestBody": {
+      "name": "The new name for the user.",
+      "avatar_url": "The new avatar URL for the user."
+    },
+    "exampleResponse": {
+      "user": {
+        "username": "butter_bridge",
+        "name": "jonny",
+        "avatar_url": "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg"
+      }
     }
   }
 }
