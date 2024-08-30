@@ -363,3 +363,26 @@ describe("/api/users", () => {
       });
   });
 });
+describe("/api/users/:username", () => {
+  test("GET: 200 responds with user object for username passed as param", () => {
+    return request(app)
+      .get("/api/users/butter_bridge")
+      .expect(200)
+      .then((response) => {
+        expect(response.body.user).toEqual({
+          username: "butter_bridge",
+          name: "jonny",
+          avatar_url:
+            "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg",
+        });
+      });
+  });
+  test("GET: 404 responds with error msg when username passed as param does not exist", () => {
+    return request(app)
+      .get("/api/users/non_existant_user")
+      .expect(404)
+      .then((response) => {
+        expect(response.body.msg).toBe("Username does not exist");
+      });
+  });
+});

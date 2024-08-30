@@ -151,14 +151,12 @@ exports.updateArticleById = (article_id, newVotes) => {
   if (!newVotes.hasOwnProperty("inc_votes")) {
     return Promise.reject({ status: 400, msg: "Missing votes" });
   }
-  return Promise.all([
-    checkExists(
-      "articles",
-      "article_id",
-      article_id,
-      "Article ID does not exist"
-    ),
-  ])
+  return checkExists(
+    "articles",
+    "article_id",
+    article_id,
+    "Article ID does not exist"
+  )
     .then(() => {
       return db.query(
         `
