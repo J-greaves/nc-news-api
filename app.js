@@ -1,4 +1,5 @@
 const express = require("express");
+const cors = require("cors");
 const app = express();
 
 const articlesRouter = require("./routes/articles-router");
@@ -7,6 +8,8 @@ const topicsRouter = require("./routes/topics-router");
 const usersRouter = require("./routes/users-router");
 
 const { getDocs } = require("./controllers/api-constrollers");
+
+app.use(cors());
 
 app.use(express.json());
 
