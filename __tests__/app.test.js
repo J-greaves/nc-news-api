@@ -139,12 +139,12 @@ describe("/api/articles", () => {
       });
   });
 
-  test("GET: 200 - filters articles by topic", () => {
+  test("GET: 200 - filters articles by topic (max 10 due to pagination default)", () => {
     return request(app)
       .get("/api/articles?topic=mitch")
       .expect(200)
       .then((response) => {
-        expect(response.body.articles).toHaveLength(12);
+        expect(response.body.articles).toHaveLength(10);
         response.body.articles.forEach((article) => {
           expect(article.topic).toBe("mitch");
         });
@@ -160,12 +160,12 @@ describe("/api/articles", () => {
         );
       });
   });
-  test("GET: 200 - returns all articles if no topic is provided", () => {
+  test("GET: 200 - returns all articles if no topic is provided (max 10 due to pagination default)", () => {
     return request(app)
       .get("/api/articles")
       .expect(200)
       .then((response) => {
-        expect(response.body.articles.length).toBe(13);
+        expect(response.body.articles.length).toBe(10);
       });
   });
 });
@@ -489,7 +489,6 @@ describe("/api/articles", () => {
       .send(newArticle)
       .expect(201)
       .then((response) => {
-        console.log(response.body.article);
         expect(response.body.article.author).toBe("icellusedkars");
         expect(response.body.article.title).toBe(
           "New article by icellusedkars"
@@ -570,8 +569,47 @@ describe("/api/articles", () => {
       .send(newArticle)
       .expect(400)
       .then((response) => {
-        console.log(response.body);
         expect(response.body.msg).toBe("Invalid values in article properties");
+      });
+  });
+});
+describe("GET /api/articles", () => {
+  test("GET /api/articles with default pagination returns articles with total count", () => {
+    return request(app)
+      .get("/api/articles")
+      .expect(200)
+      .then((response) => {
+        expect(response.body.articles).toBeInstanceOf(Array);
+        expect(response.body.articles.length).toBeLessThanOrEqual(10);
+        expect(response.body.total_count).toBeGreaterThan(0);
+      });
+  });
+  test("GET /api/articles with custom pagination returns correct page of articles", () => {
+    return request(app)
+      .get("/api/articles?limit=5&p=2")
+      .expect(200)
+      .then((response) => {
+        expect(response.body.articles).toBeInstanceOf(Array);
+        expect(response.body.articles.length).toBe(5);
+        expect(response.body.total_count).toBe(13);
+      });
+  });
+  test("GET /api/articles with custom pagination and topic query returns correct page of articles", () => {
+    return request(app)
+      .get("/api/articles?limit=5&p=2&topic=mitch")
+      .expect(200)
+      .then((response) => {
+        expect(response.body.articles).toBeInstanceOf(Array);
+        expect(response.body.articles.length).toBe(5);
+        expect(response.body.total_count).toBe(12);
+      });
+  });
+  test("GET /api/articles with invalid pagination parameters returns error", () => {
+    return request(app)
+      .get("/api/articles?limit=-5&p=abc")
+      .expect(400)
+      .then((response) => {
+        expect(response.body.msg).toBe("Invalid pagination parameters");
       });
   });
 });

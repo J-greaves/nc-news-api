@@ -20,10 +20,18 @@ exports.getArticleById = (req, res, next) => {
 };
 
 exports.getArticles = (req, res, next) => {
-  const { sort_by = "created_at", order = "desc", topic } = req.query;
-  fetchArticles(sort_by, order, topic)
+  const {
+    sort_by = "created_at",
+    order = "desc",
+    topic,
+    limit = 10,
+    p = 1,
+  } = req.query;
+  const pageSize = Number(limit);
+  const page = Number(p);
+  fetchArticles(sort_by, order, topic, pageSize, page)
     .then((articles) => {
-      res.status(200).send({ articles });
+      res.status(200).send(articles);
     })
     .catch((err) => {
       next(err);

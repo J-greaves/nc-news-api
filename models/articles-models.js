@@ -5,7 +5,8 @@ exports.fetchArticleById = (article_id) => {
   return db
     .query(
       `
-      SELECT articles.*, COUNT(comments.comment_id) AS comment_count 
+      SELECT articles.*, 
+      COUNT(comments.comment_id) AS comment_count 
       FROM articles 
       LEFT JOIN comments ON articles.article_id = comments.article_id
       WHERE articles.article_id = $1
@@ -21,7 +22,7 @@ exports.fetchArticleById = (article_id) => {
     });
 };
 
-exports.fetchArticles = (sort_by, order, topic) => {
+exports.fetchArticles = (sort_by, order, topic, pageSize, page) => {
   const validColumns = [
     "article_id",
     "title",
@@ -41,6 +42,21 @@ exports.fetchArticles = (sort_by, order, topic) => {
     return Promise.reject({ status: 400, msg: "Invalid order" });
   }
 
+  const pageSizeInt = parseInt(pageSize, 10);
+  const pageInt = parseInt(page, 10);
+
+  if (
+    isNaN(pageSizeInt) ||
+    isNaN(pageInt) ||
+    pageSizeInt <= 0 ||
+    pageInt <= 0
+  ) {
+    return Promise.reject({
+      status: 400,
+      msg: "Invalid pagination parameters",
+    });
+  }
+
   let queryStr = `
         SELECT articles.article_id,
         articles.title,
@@ -53,35 +69,53 @@ exports.fetchArticles = (sort_by, order, topic) => {
         FROM articles
         LEFT JOIN comments ON articles.article_id = comments.article_id
         `;
-  const topicQuery = [];
+  let countQueryStr = `
+        SELECT COUNT(*) FROM articles
+      `;
+  const offset = (page - 1) * pageSize;
+  const queryArray = [pageSize, offset];
   if (topic) {
     return checkExists(
-      "articles",
-      "topic",
+      "topics",
+      "slug",
       topic,
       "Topic not found or no articles for this topic"
     )
       .then(() => {
         queryStr += ` 
         WHERE articles.topic = $1 `;
-        topicQuery.push(topic);
+
+        countQueryStr += ` WHERE topic = $1`;
+
+        queryArray.unshift(topic);
 
         queryStr += `
         GROUP BY articles.article_id 
-        ORDER BY ${sort_by} ${order}`;
-
-        return db.query(queryStr, topicQuery);
+        ORDER BY ${sort_by} ${order}
+        LIMIT $2 OFFSET $3`;
+        return db.query(
+          `SELECT COUNT(*) FROM articles WHERE articles.topic = $1`,
+          [topic]
+        );
       })
-      .then((result) => {
-        return result.rows;
+      .then((countResults) => {
+        const total_count = Number(countResults.rows[0].count);
+        return db.query(queryStr, queryArray).then((result) => {
+          articles = result.rows;
+          return { articles, total_count };
+        });
       });
   }
 
   queryStr += ` GROUP BY articles.article_id
-        ORDER BY ${sort_by} ${order}`;
-
-  return db.query(queryStr, topicQuery).then((result) => {
-    return result.rows;
+        ORDER BY ${sort_by} ${order}
+        LIMIT $1 OFFSET $2`;
+  return db.query(queryStr, queryArray).then((result) => {
+    const articles = result.rows;
+    return db.query("SELECT COUNT(*) FROM articles").then((result) => {
+      const total_count = Number(result.rows[0].count);
+      return { articles, total_count };
+    });
   });
 };
 
