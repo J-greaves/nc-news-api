@@ -12,7 +12,7 @@ Built with Node.js, Express and PostgreSQL.
 
 ## Hosted Version
 
-You can access the hosted version of this API [here](https://nc-news-api-jg.onrender.com/api).
+You can access the hosted version of this API [here](https://nc-news-jg.netlify.app/).
 
 ## Setup instructions!
 
